@@ -6,7 +6,8 @@ import struct
 
 
 def _to_list(nd):
-    return [ x for x in nd ]
+    return [x for x in nd]
+
 
 class TestConvertFromFile(unittest.TestCase):
 
@@ -17,40 +18,49 @@ class TestConvertFromFile(unittest.TestCase):
     def test_empty_file_on_disk(self):
         file = os.path.join(self.files_dir, 'empty.idx')
         self.assertRaises(idx2numpy.FormatError,
-            idx2numpy.convert_from_file, file)
+                          idx2numpy.convert_from_file, file)
 
     def test_correct_file_on_disk(self):
         file = os.path.join(self.files_dir, 'correct.idx')
         self.assertSequenceEqual(
-            [0x0A, 0x0B, 0x0C], 
+            [0x0A, 0x0B, 0x0C],
             _to_list(idx2numpy.convert_from_file(file)))
 
 
 class TestConvertFromString(unittest.TestCase):
 
     def test_empty_string(self):
-        self.assertRaises(idx2numpy.FormatError,
+        self.assertRaises(
+            idx2numpy.FormatError,
             idx2numpy.convert_from_string, b'')
 
     def test_incorrect_magic_number(self):
-        self.assertRaises(idx2numpy.FormatError,
+        self.assertRaises(
+            idx2numpy.FormatError,
             idx2numpy.convert_from_string, b'\x00\x00')
-        self.assertRaises(idx2numpy.FormatError,
+        self.assertRaises(
+            idx2numpy.FormatError,
             idx2numpy.convert_from_string, b'\x01\x00\x08\x00')
-        self.assertRaises(idx2numpy.FormatError,
+        self.assertRaises(
+            idx2numpy.FormatError,
             idx2numpy.convert_from_string, b'\x00\x01\x08\x00')
         # Incorrect type code.
-        self.assertRaises(idx2numpy.FormatError,
+        self.assertRaises(
+            idx2numpy.FormatError,
             idx2numpy.convert_from_string, b'\x00\x00\x01\x00')
         # Incorrect dimension size.
-        self.assertRaises(idx2numpy.FormatError,
-            idx2numpy.convert_from_string, b'\x00\x00\x08\x01\x00\x00\x00')
+        self.assertRaises(
+            idx2numpy.FormatError,
+            idx2numpy.convert_from_string,
+            b'\x00\x00\x08\x01\x00\x00\x00')
         # Incorrect data length.
-        self.assertRaises(idx2numpy.FormatError,
+        self.assertRaises(
+            idx2numpy.FormatError,
             idx2numpy.convert_from_string,
             b'\x00\x00\x08\x01\x00\x00\x00\x02\x01')
         # Superfluous data
-        self.assertRaises(idx2numpy.FormatError,
+        self.assertRaises(
+            idx2numpy.FormatError,
             idx2numpy.convert_from_string,
             b'\x00\x00\x08\x01\x00\x00\x00\x02\x01\x02\x03\x04')
 
@@ -66,7 +76,7 @@ class TestConvertFromString(unittest.TestCase):
         self.assertSequenceEqual(
             _to_list(result),
             [0x0A, 0x0B, 0xFF])
-        
+
         # Signed byte.
         result = idx2numpy.convert_from_string(
             b'\x00\x00\x09\x01\x00\x00\x00\x04' +
@@ -79,7 +89,7 @@ class TestConvertFromString(unittest.TestCase):
         self.assertSequenceEqual(
             _to_list(result),
             [-2, -1, 0x00, -86])
-        
+
         # Short.
         result = idx2numpy.convert_from_string(
             b'\x00\x00\x0B\x01\x00\x00\x00\x02' +
