@@ -1,5 +1,5 @@
 '''
-idx2numpy module provides a tool for converting files from IDX format to
+idx2numpy package provides a tool for converting files from IDX format to
 numpy.ndarray. You can meet files in IDX format, e.g. when you're going
 to read the MNIST database of handwritten digits provided by Yann LeCun at
 http://yann.lecun.com/exdb/mnist/
