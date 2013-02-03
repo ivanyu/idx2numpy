@@ -14,7 +14,7 @@ Installation
 
 The easiest way to install is by using pip to pull it from PyPI:
 
-    pip install tweepy
+    pip install idx2numpy
 
 You can also clone the Git repository from Github and install 
 the package manually:
