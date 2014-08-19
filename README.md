@@ -8,6 +8,7 @@ to read the [MNIST database of handwritten digits]
 
 The description of IDX format also can be found on this page.
 
+[![Build Status](https://travis-ci.org/ivanyu/idx2numpy.svg?branch=master)](https://travis-ci.org/ivanyu/idx2numpy)
 
 Installation
 ============
