@@ -82,7 +82,7 @@ def _internal_convert(input):
     try:
         dims_sizes = struct.unpack('>'+'I'*dims, input.read(4*dims))
     except struct.error as e:
-        raise FormatError('Dims sizes: {}'.format(e))
+        raise FormatError('Dims sizes: {0}'.format(e))
 
     # Full length of data.
     full_length = reduce(operator.mul, dims_sizes, 1)
@@ -95,7 +95,7 @@ def _internal_convert(input):
         result_array[0:full_length] = struct.unpack(
             unpack_str, input.read(full_length * el_size))
     except struct.error as e:
-        raise FormatError('Data: {}'.format(e))
+        raise FormatError('Data: {0}'.format(e))
 
     # Check for superfluous data.
     if len(input.read(1)) > 0:
