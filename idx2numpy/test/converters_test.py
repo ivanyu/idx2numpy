@@ -1,3 +1,4 @@
+import sys
 import unittest
 import idx2numpy
 import numpy as np
@@ -5,11 +6,24 @@ import os
 import struct
 
 
-def _to_list(nd):
-    return [x for x in nd]
+# unittest in Python 2.6 and lower doesn't have assertSequenceEqual method,
+# so simple alternative is provided.
+if sys.version_info < (2, 7):
+    class TestCaseBase(unittest.TestCase):
+        @staticmethod
+        def _to_list(nd):
+            return [x for x in nd]
+
+        def assertSequenceEqual(self, seq1, seq2):
+            self.assertEquals(list(seq1), list(seq2))
+else:
+    class TestCaseBase(unittest.TestCase):
+        @staticmethod
+        def _to_list(nd):
+            return [x for x in nd]
 
 
-class TestConvertFromFile(unittest.TestCase):
+class TestConvertFromFile(TestCaseBase):
 
     def setUp(self):
         self.files_dir = os.path.join(
@@ -24,10 +38,10 @@ class TestConvertFromFile(unittest.TestCase):
         file = os.path.join(self.files_dir, 'correct.idx')
         self.assertSequenceEqual(
             [0x0A, 0x0B, 0x0C],
-            _to_list(idx2numpy.convert_from_file(file)))
+            self._to_list(idx2numpy.convert_from_file(file)))
 
 
-class TestConvertFromString(unittest.TestCase):
+class TestConvertFromString(TestCaseBase):
 
     def test_empty_string(self):
         self.assertRaises(
@@ -74,7 +88,7 @@ class TestConvertFromString(unittest.TestCase):
         self.assertEquals(np.ndim(result), 1)
         self.assertEquals(np.shape(result), (3,))
         self.assertSequenceEqual(
-            _to_list(result),
+            self._to_list(result),
             [0x0A, 0x0B, 0xFF])
 
         # Signed byte.
@@ -87,7 +101,7 @@ class TestConvertFromString(unittest.TestCase):
         self.assertEquals(np.ndim(result), 1)
         self.assertEquals(np.shape(result), (4,))
         self.assertSequenceEqual(
-            _to_list(result),
+            self._to_list(result),
             [-2, -1, 0x00, -86])
 
         # Short.
@@ -98,7 +112,7 @@ class TestConvertFromString(unittest.TestCase):
         self.assertEquals(np.ndim(result), 1)
         self.assertEquals(np.shape(result), (2,))
         self.assertSequenceEqual(
-            _to_list(result),
+            self._to_list(result),
             [-4091, 255])
 
         # Integer.
@@ -110,7 +124,7 @@ class TestConvertFromString(unittest.TestCase):
         self.assertEquals(np.ndim(result), 1)
         self.assertEquals(np.shape(result), (3,))
         self.assertSequenceEqual(
-            _to_list(result),
+            self._to_list(result),
             [0x00FF00FF, -0x80000000, 0x00])
 
         # Float.
@@ -127,7 +141,7 @@ class TestConvertFromString(unittest.TestCase):
         self.assertEquals(np.ndim(result), 1)
         self.assertEquals(np.shape(result), (5,))
         self.assertSequenceEqual(
-            _to_list(result),
+            self._to_list(result),
             [1.0, 2.0, -2.0, 0.0, -0.0])
 
 
