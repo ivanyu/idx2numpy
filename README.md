@@ -23,8 +23,6 @@ the package manually:
     git clone https://github.com/ivanyu/idx2numpy.git
     python setup.py install
 
-**Note:** Unfortunately, work with Python 3 hasn't been tested yet.
-
 Usage
 =====
 
