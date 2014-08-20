@@ -34,3 +34,20 @@ Usage
     
     s = f.read()
     ndarr = idx2numpy.convert_from_string(s)
+
+Authors and Contributors
+========================
+The project is started and maintained by Ivan Yurchenko
+(ivan0yurchenko@gmail.com).
+The Contributors are:
+ * [andres-s](https://github.com/andres-s)
+
+License
+=======
+MIT license (see *LICENSE* file)
+
+
+Also
+====
+
+Please, send me a feedback about the library, such as bugs, use cases etc.
