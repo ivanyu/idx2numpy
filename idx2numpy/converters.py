@@ -5,7 +5,12 @@ import struct
 import numpy
 import operator
 import contextlib
-from StringIO import StringIO
+from six import string_types as six_string_types
+from six.moves import reduce
+try:
+    from StringIO import StringIO as BytesIO  # for python 2.5
+except ImportError:
+    from io import BytesIO
 
 from .FormatError import FormatError
 
@@ -16,7 +21,7 @@ def convert_from_file(file):
     returns it.
     file is a file-like object (with read() method) or a file name.
     '''
-    if isinstance(file, basestring):
+    if isinstance(file, six_string_types):
         with open(file, 'rb') as f:
             return _internal_convert(f)
     else:
@@ -28,7 +33,7 @@ def convert_from_string(idx_string):
     Converts string which presents file in IDX format into numpy.ndarray and
     returns it.
     '''
-    with contextlib.closing(StringIO(idx_string)) as sio:
+    with contextlib.closing(BytesIO(idx_string)) as sio:
         return _internal_convert(sio)
 
 
