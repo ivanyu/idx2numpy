@@ -12,6 +12,6 @@ from .converters import convert_from_string
 from .converters import convert_from_file
 from .FormatError import FormatError
 
-__version__ = "1.0"
+__version__ = "1.0.1"
 
 __all__ = ['convert_from_string', 'convert_from_file', 'FormatError']
