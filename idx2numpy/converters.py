@@ -109,3 +109,32 @@ def _internal_convert(input):
     # Reshape data according to dimensions sizes.
     result = numpy.reshape(result_array, dims_sizes)
     return result
+
+
+def write_to_file(file, ndarr):
+    '''
+    Writes the contents of the numpy.ndarray ndarr to file in IDX format.
+    file is a file-like object (with read() method) or a file name.
+    '''
+    if isinstance(file, six_string_types):
+        with open(file, 'w') as fp:
+            _internal_write(fp, ndarr)
+    else:
+        _internal_write(fp, ndarr)
+
+
+def write_to_string(ndarr):
+    '''
+    Writes the contents of the numpy.ndarray ndarr to bytes in IDX format and
+    returns it.
+    '''
+    with contextlib.closing(BytesIO()) as bytesio:
+        _internal_write(bytesio, ndarr)
+        return bytesio.getvalue()
+
+
+def _internal_write(out_stream, arr):
+    '''
+    Writes numpy.ndarray arr to a file-like object (with writeXXX() method) in
+    IDX format.
+    '''
