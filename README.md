@@ -27,13 +27,24 @@ Usage
 =====
 
     import idx2numpy
+    
+    # Reading
     ndarr = idx2numpy.convert_from_file('myfile.idx')
     
-    f = open('myfile.idx', 'rb)
+    f_read = open('myfile.idx', 'rb')
     ndarr = idx2numpy.convert_from_file(f)
     
-    s = f.read()
+    s = f_read.read()
     ndarr = idx2numpy.convert_from_string(s)
+    
+    # Writing    
+    idx2numpy.write_to_file('myfile_copy.idx', ndarr)
+    
+    f_write = open('myfile_copy2.idx', 'w')
+    idx2numpy.write_to_file(f_write, ndarr)
+    
+    s = write_to_string(ndarr)
+
 
 Authors and Contributors
 ========================
