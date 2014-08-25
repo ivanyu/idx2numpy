@@ -138,25 +138,23 @@ def _internal_write(out_stream, arr):
     Writes numpy.ndarray arr to a file-like object (with writeXXX() method) in
     IDX format.
     '''
-    # SHOULD MERGE THESE WITH THE ONES IN _internal_convert
     # Possible data types.
     # Keys are ndarray data type name.
     # Values: (IDX data type code, name for struct.pack, size in bytes).
     DATA_TYPES = {
-        'uint8': (0x08, 'B', 1),
-        'int8': (0x09, 'b', 1),
-        'int16': (0x0B, 'h', 2),
-        'int32': (0x0C, 'i', 4),
-        'float32': (0x0D, 'f', 4),
-        'float64': (0x0E, 'd', 8),
+        'uint8': (0x08, 'B'),
+        'int8': (0x09, 'b'),
+        'int16': (0x0B, 'h'),
+        'int32': (0x0C, 'i'),
+        'float32': (0x0D, 'f'),
+        'float64': (0x0E, 'd'),
     }
 
     if arr.size == 0:
         raise FormatError('Cannot encode empty array.')
 
-    # Might not need size in bytes...
     try:
-        type_byte, struct_lib_type, _ = DATA_TYPES[str(arr.dtype)]
+        type_byte, struct_lib_type = DATA_TYPES[str(arr.dtype)]
     except KeyError:
         raise FormatError('numpy ndarray type not supported by IDX format.')
 
@@ -175,8 +173,8 @@ def _internal_write(out_stream, arr):
     # Write array dimensions
     out_stream.write(struct.pack('>'+'I'*arr.ndim, *arr.shape))
 
-    # Write array contents - will this work? Are there any limits to number of
-    # arguments that can be passed to a function?
+    # Write array contents - note that the limit to number of arguments doesn't
+    # apply to unrolled arguments
     out_stream.write(struct.pack('>'+struct_lib_type*arr.size,
                                  *arr.reshape(-1)))
 
