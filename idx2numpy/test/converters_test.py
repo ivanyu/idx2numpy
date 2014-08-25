@@ -198,14 +198,14 @@ class TestConvertToString(TestCaseBase):
             idx2numpy.convert_to_string, np.array(high_dim_arr))
         
     def test_very_large_ndarray(self):
-        NUM_BITS_SIZE = 4
+        NUM_BYTES_OF_SIZE_INT = 4
 
-        if np.dtype('intp').itemsize <= NUM_BITS_SIZE:
+        if np.dtype('intp').itemsize <= NUM_BYTES_OF_SIZE_INT:
             # machine is 32-bit or lower, all numpy arrays are small enough 
             # to be encoded in IDX format
             return
 
-        too_large = pow(2, pow(2, NUM_BITS_SIZE+1))
+        too_large = pow(2, 8 * NUM_BYTES_OF_SIZE_INT)
         self.assertRaises(
             idx2numpy.FormatError,
             idx2numpy.convert_to_string,
@@ -261,6 +261,15 @@ class TestConvertToString(TestCaseBase):
             b'\xC0\x00\x00\x00\x00\x00\x00\x00' +
             b'\x00\x00\x00\x00\x00\x00\x00\x00' +
             b'\x80\x00\x00\x00\x00\x00\x00\x00')
+
+        # Large array
+        large_length_bytes = b'\x00\x01\x00\x00'
+        large_length = struct.unpack('>I', large_length_bytes)[0]
+        result = idx2numpy.convert_to_string(
+            np.zeros(large_length, dtype='uint8'))
+        self.assertEqual(result,
+            b'\x00\x00\x08\x01' + large_length_bytes +
+            b'\x00' * large_length)
 
 
 if __name__ == '__main__':
