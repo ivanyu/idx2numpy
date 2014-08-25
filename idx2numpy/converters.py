@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 from __future__ import with_statement
 
+import sys
 import struct
 import numpy
 import operator
@@ -120,7 +121,7 @@ def convert_to_file(file, ndarr):
         with open(file, 'w') as fp:
             _internal_write(fp, ndarr)
     else:
-        _internal_write(fp, ndarr)
+        _internal_write(file, ndarr)
 
 
 def convert_to_string(ndarr):
@@ -173,8 +174,15 @@ def _internal_write(out_stream, arr):
     # Write array dimensions
     out_stream.write(struct.pack('>'+'I'*arr.ndim, *arr.shape))
 
-    # Write array contents - note that the limit to number of arguments doesn't
-    # apply to unrolled arguments
-    out_stream.write(struct.pack('>'+struct_lib_type*arr.size,
-                                 *arr.reshape(-1)))
+    # Horrible hack to deal with horrible bug when using struct.pack to encode
+    # unsigned ints in 2.7 and lower, see http://bugs.python.org/issue2263
+    if sys.version_info < (2, 7) and str(arr.dtype) == 'uint8':
+        arr_as_list = [int(i) for i in arr.reshape(-1)]
+        out_stream.write(struct.pack('>'+struct_lib_type*arr.size,
+                                     *arr_as_list))
+    else:
+        # Write array contents - note that the limit to number of arguments doesn't
+        # apply to unrolled arguments
+        out_stream.write(struct.pack('>'+struct_lib_type*arr.size,
+                                     *arr.reshape(-1)))
 
