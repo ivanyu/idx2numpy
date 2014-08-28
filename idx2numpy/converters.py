@@ -115,7 +115,7 @@ def _internal_convert(input):
 def convert_to_file(file, ndarr):
     '''
     Writes the contents of the numpy.ndarray ndarr to file in IDX format.
-    file is a file-like object (with read() method) or a file name.
+    file is a file-like object (with write() method) or a file name.
     '''
     if isinstance(file, six_string_types):
         with open(file, 'w') as fp:
@@ -136,7 +136,7 @@ def convert_to_string(ndarr):
 
 def _internal_write(out_stream, arr):
     '''
-    Writes numpy.ndarray arr to a file-like object (with writeXXX() method) in
+    Writes numpy.ndarray arr to a file-like object (with write() method) in
     IDX format.
     '''
     # Possible data types.
@@ -166,7 +166,7 @@ def _internal_write(out_stream, arr):
     MAX_AXIS_LENGTH = pow(2, 32) - 1
     if max(arr.shape) > MAX_AXIS_LENGTH:
         raise FormatError('IDX format cannot encode array with more than ' + 
-                          str(MAX_AXIS_LENGTH) + ' elements in any axis')
+                          str(MAX_AXIS_LENGTH) + ' elements along any axis')
     
     # Write magic number
     out_stream.write(struct.pack('BBBB', 0, 0, type_byte, arr.ndim))
