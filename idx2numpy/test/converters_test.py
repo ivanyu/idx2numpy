@@ -196,20 +196,6 @@ class TestConvertToString(TestCaseBase):
         self.assertRaises(
             idx2numpy.FormatError,
             idx2numpy.convert_to_string, np.array(high_dim_arr))
-        
-    def test_very_large_ndarray(self):
-        NUM_BYTES_OF_SIZE_INT = 4
-
-        if np.dtype('intp').itemsize <= NUM_BYTES_OF_SIZE_INT:
-            # machine is 32-bit or lower, all numpy arrays are small enough 
-            # to be encoded in IDX format
-            return
-
-        too_large = pow(2, 8 * NUM_BYTES_OF_SIZE_INT)
-        self.assertRaises(
-            idx2numpy.FormatError,
-            idx2numpy.convert_to_string,
-            np.zeros(too_large, dtype=np.int8))
 
     def test_correct(self):
         # Unsigned byte.
