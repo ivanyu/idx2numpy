@@ -15,8 +15,9 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 PACKAGE = "idx2numpy"
 TESTS_PACKAGE = "idx2numpy.test"
 NAME = "idx2numpy"
-DESCRIPTION = ("A Python package which provides tools to convert files from "
-               "IDX format (described at http://yann.lecun.com/exdb/mnist/) "
+DESCRIPTION = ("A Python package which provides tools to convert files "
+               "to and from IDX format "
+               "(described at http://yann.lecun.com/exdb/mnist/) "
                "into numpy.ndarray.")
 AUTHOR = "Ivan Yurchenko"
 AUTHOR_EMAIL = "ivan0yurchenko@gmail.com"
