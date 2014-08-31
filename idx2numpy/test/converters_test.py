@@ -1,9 +1,14 @@
 import sys
 import unittest
 import idx2numpy
+import contextlib
 import numpy as np
 import os
 import struct
+try:
+    from StringIO import StringIO as BytesIO  # for python 2.5
+except ImportError:
+    from io import BytesIO
 
 
 # unittest in Python 2.6 and lower doesn't have assertSequenceEqual method,
@@ -256,6 +261,20 @@ class TestConvertToString(TestCaseBase):
         self.assertEqual(result,
             b'\x00\x00\x08\x01' + large_length_bytes +
             b'\x00' * large_length)
+
+class TestConvertToFile(TestCaseBase):
+
+    def test_correct(self):
+        # Unsigned byte.
+        ndarr = np.array([0x0A, 0x0B, 0xFF], dtype='uint8')
+
+        with contextlib.closing(BytesIO()) as bytesio:
+            idx2numpy.convert_to_file(bytesio, ndarr)
+            self.assertEqual(bytesio.getvalue(),
+            b'\x00\x00\x08\x01\x00\x00\x00\x03' +
+            b'\x0A' +
+            b'\x0B' +
+            b'\xFF')
 
 
 if __name__ == '__main__':
