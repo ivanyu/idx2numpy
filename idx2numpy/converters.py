@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 from __future__ import with_statement
 
+import sys
 import struct
 import numpy
 import operator
@@ -109,3 +110,79 @@ def _internal_convert(input):
     # Reshape data according to dimensions sizes.
     result = numpy.reshape(result_array, dims_sizes)
     return result
+
+
+def convert_to_file(file, ndarr):
+    '''
+    Writes the contents of the numpy.ndarray ndarr to file in IDX format.
+    file is a file-like object (with write() method) or a file name.
+    '''
+    if isinstance(file, six_string_types):
+        with open(file, 'w') as fp:
+            _internal_write(fp, ndarr)
+    else:
+        _internal_write(file, ndarr)
+
+
+def convert_to_string(ndarr):
+    '''
+    Writes the contents of the numpy.ndarray ndarr to bytes in IDX format and
+    returns it.
+    '''
+    with contextlib.closing(BytesIO()) as bytesio:
+        _internal_write(bytesio, ndarr)
+        return bytesio.getvalue()
+
+
+def _internal_write(out_stream, arr):
+    '''
+    Writes numpy.ndarray arr to a file-like object (with write() method) in
+    IDX format.
+    '''
+    # Possible data types.
+    # Keys are ndarray data type name.
+    # Values: (IDX data type code, name for struct.pack, size in bytes).
+    DATA_TYPES = {
+        'uint8': (0x08, 'B'),
+        'int8': (0x09, 'b'),
+        'int16': (0x0B, 'h'),
+        'int32': (0x0C, 'i'),
+        'float32': (0x0D, 'f'),
+        'float64': (0x0E, 'd'),
+    }
+
+    if arr.size == 0:
+        raise FormatError('Cannot encode empty array.')
+
+    try:
+        type_byte, struct_lib_type = DATA_TYPES[str(arr.dtype)]
+    except KeyError:
+        raise FormatError('numpy ndarray type not supported by IDX format.')
+
+    MAX_IDX_DIMENSIONS = 255
+    if arr.ndim > MAX_IDX_DIMENSIONS:
+        raise FormatError('IDX format cannot encode array with dimensions > 255')
+
+    MAX_AXIS_LENGTH = pow(2, 32) - 1
+    if max(arr.shape) > MAX_AXIS_LENGTH:
+        raise FormatError('IDX format cannot encode array with more than ' + 
+                          str(MAX_AXIS_LENGTH) + ' elements along any axis')
+    
+    # Write magic number
+    out_stream.write(struct.pack('BBBB', 0, 0, type_byte, arr.ndim))
+
+    # Write array dimensions
+    out_stream.write(struct.pack('>'+'I'*arr.ndim, *arr.shape))
+
+    # Horrible hack to deal with horrible bug when using struct.pack to encode
+    # unsigned ints in 2.7 and lower, see http://bugs.python.org/issue2263
+    if sys.version_info < (2, 7) and str(arr.dtype) == 'uint8':
+        arr_as_list = [int(i) for i in arr.reshape(-1)]
+        out_stream.write(struct.pack('>'+struct_lib_type*arr.size,
+                                     *arr_as_list))
+    else:
+        # Write array contents - note that the limit to number of arguments doesn't
+        # apply to unrolled arguments
+        out_stream.write(struct.pack('>'+struct_lib_type*arr.size,
+                                     *arr.reshape(-1)))
+

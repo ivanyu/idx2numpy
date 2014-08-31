@@ -10,6 +10,8 @@ from __future__ import absolute_import
 
 from .converters import convert_from_string
 from .converters import convert_from_file
+from .converters import convert_to_string
+from .converters import convert_to_file
 from .FormatError import FormatError
 
 __version__ = "1.0.1"

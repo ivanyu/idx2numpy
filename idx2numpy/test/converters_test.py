@@ -1,9 +1,14 @@
 import sys
 import unittest
 import idx2numpy
+import contextlib
 import numpy as np
 import os
 import struct
+try:
+    from StringIO import StringIO as BytesIO  # for python 2.5
+except ImportError:
+    from io import BytesIO
 
 
 # unittest in Python 2.6 and lower doesn't have assertSequenceEqual method,
@@ -143,6 +148,133 @@ class TestConvertFromString(TestCaseBase):
         self.assertSequenceEqual(
             self._to_list(result),
             [1.0, 2.0, -2.0, 0.0, -0.0])
+
+class TestConvertToString(TestCaseBase):
+
+    def test_empty_array(self):
+        self.assertRaises(
+            idx2numpy.FormatError,
+            idx2numpy.convert_to_string, np.array([]))
+
+    def test_unsupported_ndarray_formats(self):
+        self.assertRaises(
+            idx2numpy.FormatError,
+            idx2numpy.convert_to_string,
+            np.array([True, False], dtype='bool_'))
+        self.assertRaises(
+            idx2numpy.FormatError,
+            idx2numpy.convert_to_string,
+            np.array([1], dtype='int64'))
+        self.assertRaises(
+            idx2numpy.FormatError,
+            idx2numpy.convert_to_string,
+            np.array([1], dtype='uint16'))
+        self.assertRaises(
+            idx2numpy.FormatError,
+            idx2numpy.convert_to_string,
+            np.array([1], dtype='uint32'))
+        self.assertRaises(
+            idx2numpy.FormatError,
+            idx2numpy.convert_to_string,
+            np.array([1], dtype='uint64'))
+        self.assertRaises(
+            idx2numpy.FormatError,
+            idx2numpy.convert_to_string,
+            np.array([1], dtype='float16'))
+        self.assertRaises(
+            idx2numpy.FormatError,
+            idx2numpy.convert_to_string,
+            np.array([1], dtype='complex64'))
+        self.assertRaises(
+            idx2numpy.FormatError,
+            idx2numpy.convert_to_string,
+            np.array([1], dtype='complex128'))
+
+    def test_very_high_dimensional_ndarray(self):
+        HIGH_DIMENSIONS = 256
+
+        # Generate a high dimensional array containing 1 element
+        high_dim_arr = 1
+        for i in range(HIGH_DIMENSIONS):
+            high_dim_arr = [high_dim_arr]
+
+        self.assertRaises(
+            idx2numpy.FormatError,
+            idx2numpy.convert_to_string, np.array(high_dim_arr))
+
+    def test_correct(self):
+        # Unsigned byte.
+        result = idx2numpy.convert_to_string(
+            np.array([0x0A, 0x0B, 0xFF], dtype='uint8'))
+        self.assertEqual(result,
+            b'\x00\x00\x08\x01\x00\x00\x00\x03' +
+            b'\x0A' +
+            b'\x0B' +
+            b'\xFF')
+
+        # Signed byte.
+        result = idx2numpy.convert_to_string(
+            np.array([-2, -1, 0x00, -86], dtype='int8'))
+        self.assertEqual(result,
+            b'\x00\x00\x09\x01\x00\x00\x00\x04' +
+            b'\xFE' +
+            b'\xFF' +
+            b'\x00' +
+            b'\xAA')
+
+        # Short.
+        result = idx2numpy.convert_to_string(
+            np.array([-4091, 255], dtype='int16'))
+        self.assertEqual(result,
+            b'\x00\x00\x0B\x01\x00\x00\x00\x02' +
+            b'\xF0\x05' +
+            b'\x00\xFF')
+
+        # Integer.
+        result = idx2numpy.convert_to_string(
+            np.array([0x00FF00FF, -0x80000000, 0x00], dtype='int32'))
+        self.assertEqual(result,
+            b'\x00\x00\x0C\x01\x00\x00\x00\x03' +
+            b'\x00\xFF\x00\xFF' +
+            b'\x80\x00\x00\x00' +
+            b'\x00\x00\x00\x00')
+
+        # Float.
+        # No less fat, still no tests.
+
+        # Double.
+        result = idx2numpy.convert_to_string(
+            np.array([1.0, 2.0, -2.0, 0.0, -0.0], dtype='float64'))
+        self.assertEquals(result,
+            b'\x00\x00\x0E\x01\x00\x00\x00\x05' +
+            b'\x3F\xF0\x00\x00\x00\x00\x00\x00' +
+            b'\x40\x00\x00\x00\x00\x00\x00\x00' +
+            b'\xC0\x00\x00\x00\x00\x00\x00\x00' +
+            b'\x00\x00\x00\x00\x00\x00\x00\x00' +
+            b'\x80\x00\x00\x00\x00\x00\x00\x00')
+
+        # Large array
+        large_length_bytes = b'\x00\x01\x00\x00'
+        large_length = struct.unpack('>I', large_length_bytes)[0]
+        result = idx2numpy.convert_to_string(
+            np.zeros(large_length, dtype='uint8'))
+        self.assertEqual(result,
+            b'\x00\x00\x08\x01' + large_length_bytes +
+            b'\x00' * large_length)
+
+class TestConvertToFile(TestCaseBase):
+
+    def test_correct(self):
+        # Unsigned byte.
+        ndarr = np.array([0x0A, 0x0B, 0xFF], dtype='uint8')
+
+        with contextlib.closing(BytesIO()) as bytesio:
+            idx2numpy.convert_to_file(bytesio, ndarr)
+            self.assertEqual(bytesio.getvalue(),
+            b'\x00\x00\x08\x01\x00\x00\x00\x03' +
+            b'\x0A' +
+            b'\x0B' +
+            b'\xFF')
 
 
 if __name__ == '__main__':
