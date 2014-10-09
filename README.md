@@ -39,12 +39,12 @@ s = f_read.read()
 ndarr = idx2numpy.convert_from_string(s)
 
 # Writing    
-idx2numpy.write_to_file('myfile_copy.idx', ndarr)
+idx2numpy.convert_to_file('myfile_copy.idx', ndarr)
 
 f_write = open('myfile_copy2.idx', 'w')
-idx2numpy.write_to_file(f_write, ndarr)
+idx2numpy.convert_to_file(f_write, ndarr)
 
-s = write_to_string(ndarr)
+s = convert_to_string(ndarr)
 ```
 
 Authors and Contributors
