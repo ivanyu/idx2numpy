@@ -33,7 +33,7 @@ import idx2numpy
 ndarr = idx2numpy.convert_from_file('myfile.idx')
 
 f_read = open('myfile.idx', 'rb')
-ndarr = idx2numpy.convert_from_file(f)
+ndarr = idx2numpy.convert_from_file(f_read)
 
 s = f_read.read()
 ndarr = idx2numpy.convert_from_string(s)
