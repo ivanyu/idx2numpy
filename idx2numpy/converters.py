@@ -54,10 +54,10 @@ def _internal_convert(input):
     DATA_TYPES = {
         0x08: ('ubyte', 'B', 1),
         0x09: ('byte', 'b', 1),
-        0x0B: ('int16', 'h', 2),
-        0x0C: ('int32', 'i', 4),
-        0x0D: ('float', 'f', 4),
-        0x0E: ('double', 'd', 8)
+        0x0B: ('>i2', 'h', 2),
+        0x0C: ('>i4', 'i', 4),
+        0x0D: ('>f4', 'f', 4),
+        0x0E: ('>f8', 'd', 8)
     }
 
     # Read the "magic number" - 4 bytes.
@@ -93,23 +93,20 @@ def _internal_convert(input):
     # Full length of data.
     full_length = reduce(operator.mul, dims_sizes, 1)
 
-    result_array = numpy.ndarray(shape=[full_length], dtype=dtype)
-
-    # Read data "in the line".
-    unpack_str = '>' + dtype_s*full_length
+    # Create a numpy array from the data
     try:
-        result_array[0:full_length] = struct.unpack(
-            unpack_str, input.read(full_length * el_size))
-    except struct.error as e:
-        raise FormatError('Data: {0}'.format(e))
+        result_array = numpy.frombuffer(
+            input.read(full_length * el_size),
+            dtype=numpy.dtype(dtype)
+        ).reshape(dims_sizes)
+    except ValueError as e:
+        raise FormatError('Error creating numpy array: {0}'.format(e))
 
     # Check for superfluous data.
     if len(input.read(1)) > 0:
         raise FormatError('Superfluous data detected.')
 
-    # Reshape data according to dimensions sizes.
-    result = numpy.reshape(result_array, dims_sizes)
-    return result
+    return result_array
 
 
 def convert_to_file(file, ndarr):
