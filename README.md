@@ -53,6 +53,7 @@ The project is started and maintained by Ivan Yurchenko
 (ivan0yurchenko@gmail.com).
 The Contributors are:
  * [andres-s](https://github.com/andres-s)
+ * [angeloskath](https://github.com/angeloskath)
 
 License
 =======
