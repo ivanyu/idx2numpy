@@ -14,6 +14,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 PACKAGE = "idx2numpy"
 TESTS_PACKAGE = "idx2numpy.test"
+VERSION_FILE = "idx2numpy.version"
 NAME = "idx2numpy"
 DESCRIPTION = ("A Python package which provides tools to convert files "
                "to and from IDX format "
@@ -22,7 +23,9 @@ DESCRIPTION = ("A Python package which provides tools to convert files "
 AUTHOR = "Ivan Yurchenko"
 AUTHOR_EMAIL = "ivan0yurchenko@gmail.com"
 URL = "https://github.com/ivanyu/idx2numpy"
-VERSION = __import__(PACKAGE).__version__
+
+exec(open('%s/version.py' % PACKAGE).read())
+VERSION = __version__
 
 MAINTAINER = AUTHOR
 MAINTAINER_EMAIL = AUTHOR_EMAIL
@@ -64,5 +67,9 @@ setup(
     ],
     zip_safe=False,
     test_suite="idx2numpy.test",
-    keywords='mnist numpy'
+    keywords='mnist numpy',
+    install_requires=[
+        "numpy",
+        "six"
+    ]
 )
