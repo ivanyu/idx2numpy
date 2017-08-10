@@ -1,3 +1,2 @@
 numpy
 six
-setuptools<30.0.0
