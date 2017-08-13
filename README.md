@@ -3,8 +3,7 @@ idx2numpy
 
 idx2numpy package provides a tool for converting files to and from
 IDX format to numpy.ndarray. You can meet files in IDX format,
-e.g. when you're going to read the [MNIST database of handwritten digits]
-(http://yann.lecun.com/exdb/mnist/) provided by Yann LeCun.
+e.g. when you're going to read the [MNIST database of handwritten digits](http://yann.lecun.com/exdb/mnist/) provided by Yann LeCun.
 
 The description of IDX format also can be found on this page.
 
