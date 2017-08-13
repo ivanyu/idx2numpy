@@ -54,6 +54,7 @@ The project is started and maintained by Ivan Yurchenko
 The Contributors are:
  * [andres-s](https://github.com/andres-s)
  * [angeloskath](https://github.com/angeloskath)
+ * [piercefreeman](https://github.com/piercefreeman)
 
 License
 =======
