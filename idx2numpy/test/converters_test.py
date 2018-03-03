@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import sys
 import unittest
 import idx2numpy
@@ -5,11 +7,11 @@ import contextlib
 import numpy as np
 import os
 import struct
+
 try:
     from StringIO import StringIO as BytesIO  # for python 2.5
 except ImportError:
     from io import BytesIO
-
 
 # unittest in Python 2.6 and lower doesn't have assertSequenceEqual method,
 # so simple alternative is provided.
@@ -29,7 +31,6 @@ else:
 
 
 class TestConvertFromFile(TestCaseBase):
-
     def setUp(self):
         self.files_dir = os.path.join(
             os.path.dirname(os.path.abspath(__file__)), 'files')
@@ -47,7 +48,6 @@ class TestConvertFromFile(TestCaseBase):
 
 
 class TestConvertFromString(TestCaseBase):
-
     def test_empty_string(self):
         self.assertRaises(
             idx2numpy.FormatError,
@@ -90,8 +90,8 @@ class TestConvertFromString(TestCaseBase):
             b'\x0A' +
             b'\x0B' +
             b'\xFF')
-        self.assertEquals(np.ndim(result), 1)
-        self.assertEquals(np.shape(result), (3,))
+        self.assertEqual(np.ndim(result), 1)
+        self.assertEqual(np.shape(result), (3,))
         self.assertSequenceEqual(
             self._to_list(result),
             [0x0A, 0x0B, 0xFF])
@@ -103,8 +103,8 @@ class TestConvertFromString(TestCaseBase):
             b'\xFF' +
             b'\x00' +
             b'\xAA')
-        self.assertEquals(np.ndim(result), 1)
-        self.assertEquals(np.shape(result), (4,))
+        self.assertEqual(np.ndim(result), 1)
+        self.assertEqual(np.shape(result), (4,))
         self.assertSequenceEqual(
             self._to_list(result),
             [-2, -1, 0x00, -86])
@@ -114,8 +114,8 @@ class TestConvertFromString(TestCaseBase):
             b'\x00\x00\x0B\x01\x00\x00\x00\x02' +
             b'\xF0\x05' +
             b'\x00\xFF')
-        self.assertEquals(np.ndim(result), 1)
-        self.assertEquals(np.shape(result), (2,))
+        self.assertEqual(np.ndim(result), 1)
+        self.assertEqual(np.shape(result), (2,))
         self.assertSequenceEqual(
             self._to_list(result),
             [-4091, 255])
@@ -126,8 +126,8 @@ class TestConvertFromString(TestCaseBase):
             b'\x00\xFF\x00\xFF' +
             b'\x80\x00\x00\x00' +
             b'\x00\x00\x00\x00')
-        self.assertEquals(np.ndim(result), 1)
-        self.assertEquals(np.shape(result), (3,))
+        self.assertEqual(np.ndim(result), 1)
+        self.assertEqual(np.shape(result), (3,))
         self.assertSequenceEqual(
             self._to_list(result),
             [0x00FF00FF, -0x80000000, 0x00])
@@ -143,14 +143,14 @@ class TestConvertFromString(TestCaseBase):
             b'\xC0\x00\x00\x00\x00\x00\x00\x00' +
             b'\x00\x00\x00\x00\x00\x00\x00\x00' +
             b'\x80\x00\x00\x00\x00\x00\x00\x00')
-        self.assertEquals(np.ndim(result), 1)
-        self.assertEquals(np.shape(result), (5,))
+        self.assertEqual(np.ndim(result), 1)
+        self.assertEqual(np.shape(result), (5,))
         self.assertSequenceEqual(
             self._to_list(result),
             [1.0, 2.0, -2.0, 0.0, -0.0])
 
-class TestConvertToString(TestCaseBase):
 
+class TestConvertToString(TestCaseBase):
     def test_empty_array(self):
         self.assertRaises(
             idx2numpy.FormatError,
@@ -207,37 +207,37 @@ class TestConvertToString(TestCaseBase):
         result = idx2numpy.convert_to_string(
             np.array([0x0A, 0x0B, 0xFF], dtype='uint8'))
         self.assertEqual(result,
-            b'\x00\x00\x08\x01\x00\x00\x00\x03' +
-            b'\x0A' +
-            b'\x0B' +
-            b'\xFF')
+                         b'\x00\x00\x08\x01\x00\x00\x00\x03' +
+                         b'\x0A' +
+                         b'\x0B' +
+                         b'\xFF')
 
         # Signed byte.
         result = idx2numpy.convert_to_string(
             np.array([-2, -1, 0x00, -86], dtype='int8'))
         self.assertEqual(result,
-            b'\x00\x00\x09\x01\x00\x00\x00\x04' +
-            b'\xFE' +
-            b'\xFF' +
-            b'\x00' +
-            b'\xAA')
+                         b'\x00\x00\x09\x01\x00\x00\x00\x04' +
+                         b'\xFE' +
+                         b'\xFF' +
+                         b'\x00' +
+                         b'\xAA')
 
         # Short.
         result = idx2numpy.convert_to_string(
             np.array([-4091, 255], dtype='int16'))
         self.assertEqual(result,
-            b'\x00\x00\x0B\x01\x00\x00\x00\x02' +
-            b'\xF0\x05' +
-            b'\x00\xFF')
+                         b'\x00\x00\x0B\x01\x00\x00\x00\x02' +
+                         b'\xF0\x05' +
+                         b'\x00\xFF')
 
         # Integer.
         result = idx2numpy.convert_to_string(
             np.array([0x00FF00FF, -0x80000000, 0x00], dtype='int32'))
         self.assertEqual(result,
-            b'\x00\x00\x0C\x01\x00\x00\x00\x03' +
-            b'\x00\xFF\x00\xFF' +
-            b'\x80\x00\x00\x00' +
-            b'\x00\x00\x00\x00')
+                         b'\x00\x00\x0C\x01\x00\x00\x00\x03' +
+                         b'\x00\xFF\x00\xFF' +
+                         b'\x80\x00\x00\x00' +
+                         b'\x00\x00\x00\x00')
 
         # Float.
         # No less fat, still no tests.
@@ -245,13 +245,13 @@ class TestConvertToString(TestCaseBase):
         # Double.
         result = idx2numpy.convert_to_string(
             np.array([1.0, 2.0, -2.0, 0.0, -0.0], dtype='float64'))
-        self.assertEquals(result,
-            b'\x00\x00\x0E\x01\x00\x00\x00\x05' +
-            b'\x3F\xF0\x00\x00\x00\x00\x00\x00' +
-            b'\x40\x00\x00\x00\x00\x00\x00\x00' +
-            b'\xC0\x00\x00\x00\x00\x00\x00\x00' +
-            b'\x00\x00\x00\x00\x00\x00\x00\x00' +
-            b'\x80\x00\x00\x00\x00\x00\x00\x00')
+        self.assertEqual(result,
+                         b'\x00\x00\x0E\x01\x00\x00\x00\x05' +
+                         b'\x3F\xF0\x00\x00\x00\x00\x00\x00' +
+                         b'\x40\x00\x00\x00\x00\x00\x00\x00' +
+                         b'\xC0\x00\x00\x00\x00\x00\x00\x00' +
+                         b'\x00\x00\x00\x00\x00\x00\x00\x00' +
+                         b'\x80\x00\x00\x00\x00\x00\x00\x00')
 
         # Large array
         large_length_bytes = b'\x00\x01\x00\x00'
@@ -259,11 +259,11 @@ class TestConvertToString(TestCaseBase):
         result = idx2numpy.convert_to_string(
             np.zeros(large_length, dtype='uint8'))
         self.assertEqual(result,
-            b'\x00\x00\x08\x01' + large_length_bytes +
-            b'\x00' * large_length)
+                         b'\x00\x00\x08\x01' + large_length_bytes +
+                         b'\x00' * large_length)
+
 
 class TestConvertToFile(TestCaseBase):
-
     def test_correct(self):
         # Unsigned byte.
         ndarr = np.array([0x0A, 0x0B, 0xFF], dtype='uint8')
@@ -271,10 +271,10 @@ class TestConvertToFile(TestCaseBase):
         with contextlib.closing(BytesIO()) as bytesio:
             idx2numpy.convert_to_file(bytesio, ndarr)
             self.assertEqual(bytesio.getvalue(),
-            b'\x00\x00\x08\x01\x00\x00\x00\x03' +
-            b'\x0A' +
-            b'\x0B' +
-            b'\xFF')
+                             b'\x00\x00\x08\x01\x00\x00\x00\x03' +
+                             b'\x0A' +
+                             b'\x0B' +
+                             b'\xFF')
 
 
 if __name__ == '__main__':
