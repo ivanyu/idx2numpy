@@ -273,12 +273,11 @@ class TestConvertToFile(TestCaseBase):
                           b'\x0A' +
                           b'\x0B' +
                           b'\xFF')
-        super().setUp()
 
     def tearDown(self):
         try:
             os.remove(self._test_output_file)
-        except FileNotFoundError:
+        except:
             pass
 
     def test_correct(self):
