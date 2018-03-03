@@ -264,17 +264,34 @@ class TestConvertToString(TestCaseBase):
 
 
 class TestConvertToFile(TestCaseBase):
-    def test_correct(self):
-        # Unsigned byte.
-        ndarr = np.array([0x0A, 0x0B, 0xFF], dtype='uint8')
+    def setUp(self):
+        self._test_output_file = '.test'
 
+        # Unsigned byte.
+        self._ndarr_to_convert = np.array([0x0A, 0x0B, 0xFF], dtype='uint8')
+        self._expected = (b'\x00\x00\x08\x01\x00\x00\x00\x03' +
+                          b'\x0A' +
+                          b'\x0B' +
+                          b'\xFF')
+        super().setUp()
+
+    def tearDown(self):
+        try:
+            os.remove(self._test_output_file)
+        except FileNotFoundError:
+            pass
+
+    def test_correct(self):
         with contextlib.closing(BytesIO()) as bytesio:
-            idx2numpy.convert_to_file(bytesio, ndarr)
-            self.assertEqual(bytesio.getvalue(),
-                             b'\x00\x00\x08\x01\x00\x00\x00\x03' +
-                             b'\x0A' +
-                             b'\x0B' +
-                             b'\xFF')
+            idx2numpy.convert_to_file(bytesio, self._ndarr_to_convert)
+            self.assertEqual(bytesio.getvalue(), self._expected)
+
+    def test_correct_with_filename_argument(self):
+        idx2numpy.convert_to_file(self._test_output_file, self._ndarr_to_convert)
+
+        with open(self._test_output_file, 'rb') as fp:
+            read_bytes = fp.read()
+            self.assertEqual(read_bytes, self._expected)
 
 
 if __name__ == '__main__':
