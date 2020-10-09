@@ -8,7 +8,8 @@ A Python package which provides tools to convert files from IDX format
 from setuptools import setup
 import os
 
-README = open(os.path.join(os.path.dirname(__file__), 'README.md')).read()
+with open("README.md", "r") as fh:
+    long_description = fh.read()
 
 # Allow setup.py to be run from any path.
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
@@ -35,7 +36,8 @@ setup(
     name=NAME,
     version=VERSION,
     description=DESCRIPTION,
-    long_description=README,
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     author=AUTHOR,
     author_email=AUTHOR_EMAIL,
     maintainer=MAINTAINER,
